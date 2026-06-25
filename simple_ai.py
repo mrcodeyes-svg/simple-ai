@@ -31,11 +31,12 @@ for epoch in range(100):
         weight_1 += error * input_1 * learning_rate
         weight_2 += error * input_2 * learning_rate
         learning_rate = abs(weight_1 - weight_2) + 0.1
+        
         print(f"learning rate {learning_rate}, weight 1: {weight_1}, weight 2: {weight_2}")
 
 # 6. Test the trained AI on a new scenario
 test_1 = random.randint(0, 10000000000)
-test_2 = 0
+test_2 = 5
 
 # The AI makes its final prediction using the stable weights
 final_prediction = (test_1 * weight_1) + (test_2 * weight_2)
