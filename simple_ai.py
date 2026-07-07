@@ -1,35 +1,65 @@
+import ctypes as ct
+
 #the data that the ai is trained on
 X = [[0, 0], [0, 1], [1, 0], [1, 1], [0,0], [1,1], [1,0], [0,1]]
 
 # the right answers
 y = [0, 1, 1, 2, 0, 2, 1, 1]
 
+#rows and cols of x
+rows = len(X)
+cols = 2
+
+#the data for c++
+class data2(ct.Structure):
+    _fields_ = [
+        ("weight1", ct.c_float),
+        ("weight2", ct.c_float)
+    ]
+
 #the weights for the ai 
 weight_1 = 0.15
 weight_2 = 0.30
 
 #the learning rate for the ai
-learning_rate = 0.1
+learning_rate = 0.1 
 
-#traning loop for the ai 25 times
-for epoch in range(25):
-    #loop through X 25 times
-    for i in range(len(X)):
-        input_1 = X[i][0]
-        input_2 = X[i][1]
-        target = y[i]
+#get the loop from c++
+loop = ct.CDLL(r'C:\Users\mrcod\Downloads\code\simple_ai\loop.dll')
 
-        #make a guess
-        prediction1 = (input_1 * weight_1) + (input_2 * weight_2)
-        #subtract the target and prediction for the error
-        error = target - prediction1
-        #change the weights based on the error inputs and learing rate
-        weight_1 += error * input_1 * learning_rate
-        weight_2 += error * input_2 * learning_rate
-        #change the learning rate based on the two weights and add a fixed number
-        learning_rate = abs(weight_1 - weight_2) + 0.5
-        #print the learning rate, and the two weights
-        print(f" learning rate {learning_rate}, weight 1: {weight_1}, weight 2: {weight_2}")
+#the arg for c++
+loop.loop.argtypes = [
+    ct.c_int,                         
+    ct.c_float,                       
+    ct.c_float,                       
+    ct.c_int,                         
+    ct.POINTER(ct.POINTER(ct.c_int)), 
+    ct.POINTER(ct.c_int),             
+    ct.c_float                        
+]
+
+#define epochs
+epochs = 25
+#make row allocations
+row_all = [(ct.c_int * cols)(*row) for row in X]
+#make a pointer
+pointer = ct.POINTER(ct.c_int) * rows
+inputs = pointer()
+
+#load the mem for the rows
+for i, row2 in enumerate(row_all):
+    inputs[i] = ct.cast(row2, ct.POINTER(ct.c_int))
+
+#make the ans for c++ to read
+ans = (ct.c_int * rows)(*y)
+
+#the data c++ needs
+loop.loop.restype = data2
+data_final = loop.loop(ct.c_int(epochs), ct.c_float(weight_1), ct.c_float(weight_2), rows, inputs, ans, ct.c_float(learning_rate))
+
+#make weight 1 and 2 the new ones
+weight_1 = data_final.weight1
+weight_2 = data_final.weight2
 
 #define the test so we can use it over and over again and let the function take different tests as inputs
 def test(test_1, test_2):

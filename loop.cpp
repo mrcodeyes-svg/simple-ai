@@ -1,23 +1,21 @@
 #include <cmath>
-#include <cstddef>
+//#include <cstddef>
 #include <iostream>
-#include <vector>
 
 //make some data so we can return a value
 struct data {
     float weight1;
     float weight2;
-    float learning_rate;
 };
 
 //compile into c
 extern "C" {
     //make a loop with epochs the weights and the two inputs and the thing we are looking for use data so we can return a value
-    data loop(int epochs, float weight1, float weight2, std::vector<std::vector<int>> inputs, std::vector<int> ans, float learning_rate) {
+    data loop(int epochs, float weight1, float weight2, int size_in, int** inputs, int* ans, float learning_rate) {
         //train for the amount of epoches given
         for (int epoch = 0; epoch < epochs; epoch++) {
             //loop through inputs
-            for (size_t i = 0; i < inputs.size(); i++) {
+            for (int i = 0; i < size_in; i++) {
                 //the vars
                 int input1 = inputs[i][0]; 
                 int input2 = inputs[i][1];
@@ -37,11 +35,6 @@ extern "C" {
             };
         };
         //return the values
-        return {weight1, weight2, learning_rate};
+        return {weight1, weight2};
     };
 };
-int main() {
-    std::vector<std::vector<int>> x = {{0, 0}, {0, 1}, {1, 0}, {1, 1}, {0, 0}, {1, 1}, {1, 0}, {0, 1}};
-    std::vector<int> y = {0,1,1,2,0,2,1,1};
-    loop(25, 0.15, 0.30, x, y, 0.1);
-}
