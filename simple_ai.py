@@ -79,7 +79,7 @@ def test(test_1, test_2):
     return final_prediction, final_prediction2, error2
 
 #get the user's word 
-word = input("what is your word? ")
+word = input(" what is your word? ")
 #start the word list as a empty list
 word_list = []
 #start the final word as a empty string
